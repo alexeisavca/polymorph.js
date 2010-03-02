@@ -1,0 +1,276 @@
+<script type="text/javascript" src="polymorph.js"></script>
+<script>
+
+/*
+Simple object with polymorph constructor
+Note that one constructor can call another
+*/
+var Point = polymorph(
+	function() {
+		this.constructor(0,0);
+	},
+	function(x,y) {
+		this.x = x;
+		this.y = y;
+		this.toString = function() {return this.x+"; "+this.y;};
+	}
+);
+
+/*
+More complex polymorph constructor
+*/
+var Rectangle = polymorph(
+	function(x1, y1, x2, y2) {
+		this.x1 = x1;
+		this.y1 = y1;
+		this.x2 = x2;
+		this.y2 = y2;
+	},
+
+	/*
+	Two two-parameter constructors with different parameter types
+	*/
+	{p1: Point, p2: Point},
+	function(p1, p2) {
+		this.constructor(p1.x, p1.y, p2.x, p2.y);
+	},
+
+	{x1: Number, y1: Number},
+	function(x1, y1) {
+		this.constructor(x1, y1, x1, y1);
+	},
+
+	function() {
+		this.constructor(0, 0);
+	}
+);
+Rectangle.prototype.toString = function() {return "("+this.x1+", "+this.y1+")-("+this.x2+", "+this.y2+")";};
+/*
+Polymorph method (expand rectangle to include given point or rectangle).
+Also can call other instances of itself.
+*/
+Rectangle.prototype.add = polymorph(
+	{x: Number, y: Number},
+	function(x,y) {
+		if(this.x1 > x) this.x1 = x;
+		if(this.x2 < x) this.x2 = x;
+		if(this.y1 > y) this.y1 = y;
+		if(this.y2 < y) this.y2 = y;
+	},
+
+	{p: Point},
+	function(p) {
+		this.add(p.x, p.y);
+	},
+
+	{r: Rectangle},
+	function(r) {
+		this.add(r.x1, r.y1);
+		this.add(r.x2, r.y2);
+	}
+);
+
+/*
+Polymorph function: four-parameter and two two-parameter versions
+*/
+var getArea = polymorph(
+	{x1: Number, y1: Number, x2: Number, y2: Number},
+	function(x1, y1, x2, y2)
+	{
+		return (x2 - x1) * (y2 - y1);
+	},
+	
+	{p1: Point, p2: Point},
+	function(p1, p2)
+	{
+		return getArea(p1.x, p1.y, p2.x, p2.y);
+	},
+	
+	{x: Number, y: Number},
+	function(x, y)
+	{
+		return getArea(0, 0, x, y);
+	}
+);
+
+/*
+Single-parameter polymorph function
+*/
+var numstr = polymorph(
+	{num: Number},
+	function(num)
+	{
+		return "Square of "+num+" is "+num*num;
+	},
+	{str: String},
+	function(str)
+	{
+		return "String '"+str+"' was passed";
+	}
+);
+
+/*
+Test fields access through this
+*/
+function TestObject() {
+	this.val = 5;
+};
+TestObject.prototype.test = polymorph(
+	function(param)
+	{
+		return("One parameter: "+param+"; value="+this.val);
+	},
+	function(par1, par2)
+	{
+		return("One parameter: "+par1+", "+par2+"; megavalue="+this.val);
+	}
+);
+
+/*
+Simple test suite
+*/
+var ntest = 0;
+var nfailed = 0;
+function is(a,b)
+{
+	ntest++;
+	if(a.toString() != b.toString()) {
+		document.write("Test #"+ntest+" failed: '"+a.toString()+"' != '"+b.toString()+"'<br>");
+		nfailed++;
+	} else
+		document.write("Test #"+ntest+" ok<br>");
+}
+
+/*
+Test Rectangle and Point constructors
+*/
+is(new Rectangle(),"(0, 0)-(0, 0)");
+is(new Rectangle(3,5),"(3, 5)-(3, 5)");
+is(new Rectangle(new Point(), new Point(5,6)),"(0, 0)-(5, 6)");
+is(new Rectangle(3,5,6,7),"(3, 5)-(6, 7)");
+
+/*
+Test Rectangle.add method
+*/
+var r = new Rectangle();
+is(r, "(0, 0)-(0, 0)");
+r.add(2,2);
+is(r, "(0, 0)-(2, 2)");
+r.add(new Point(1,3));
+is(r, "(0, 0)-(2, 3)");
+r.add(new Rectangle(1,2,3,4));
+is(r, "(0, 0)-(3, 4)");
+
+/*
+Test field access
+*/
+var obj = new TestObject();
+is(obj.test(1),"One parameter: 1; value=5");
+is(obj.test(2,3),"One parameter: 2, 3; megavalue=5");
+
+/*
+Test polymorph function
+*/
+is(getArea(0,0,5,5),25);
+is(getArea(new Point(1,1), new Point(5,5)),16);
+// basic type 'number' and object Number are considered the same in polymorph.js
+is(getArea(new Number(3),new Number(3)),9);
+
+/*
+Test 'numstr'
+*/
+is(numstr("string"),"String 'string' was passed");
+is(numstr(new Number(5)),"Square of 5 is 25");
+/*
+Note this: if types are incompatible, then no error occurs,
+but last registered function with given arguments number will be called
+Strict type control is omitted for the sake of speed
+*/
+is(numstr(new Point(1,2)),"String '1; 2' was passed");
+/*
+Update function: now 'Point' type is supported as parameter and will be handled correctly
+*/
+numstr.update(
+	{p: Point},
+	function(p) {
+		return("Point was passed with x coord = "+p.x);
+	}
+);
+/*
+Old ones work the same way
+*/
+is(numstr("string"),"String 'string' was passed");
+is(numstr(5),"Square of 5 is 25");
+/*
+New function works also
+*/
+is(numstr(new Point(1,2)),"Point was passed with x coord = 1");
+
+/*
+Create new polymorph function which inherits old one with some changes
+Something like clone+update
+*/
+rectstr = numstr.inherit(
+	{r: Rectangle},
+	function(r) {
+		return("Rectangle was passed. Look at it: "+r.toString());
+	}
+)
+is(rectstr("string"),"String 'string' was passed");
+is(rectstr(5),"Square of 5 is 25");
+/*
+Rectangle can be passed as parameter
+*/
+is(rectstr(new Rectangle()),"Rectangle was passed. Look at it: (0, 0)-(0, 0)");
+/*
+For numstr Rectangle-function is not registered, thus last one-argument registered function will be called
+*/
+is(numstr(new Rectangle()),"Point was passed with x coord = undefined");
+
+/*
+This update replaces function existed before
+Replace occurs when number of parameters and their types are exactly the same
+(note that parameter names may be different)
+*/
+numstr.update(
+	{param: String},
+	function(param) {
+		return "New string function called! Param = "+param;
+	}
+);
+is(numstr("string"), "New string function called! Param = string");
+/*
+This change doesn't affect 'rectstr'
+*/
+is(rectstr("string"), "String 'string' was passed");
+
+document.write(ntest-nfailed+" test(s) ok<br>");
+document.write(nfailed+" test(s) failed<br>");
+
+/*
+Time test
+Usually lasts couple of seconds.
+Outcomment this if it's too slow on your machine or browser
+*/
+var emptyfunc = polymorph(
+	function(a,b) {},
+	
+	{a:Number},
+	function(a) {},
+	
+	{a:String},
+	function(a) {}
+);
+var start = new Date();
+for(var i=0; i<100000; i++) emptyfunc(5,6);
+// This one usually faster, because it's the only two-parameters function,
+// so arguments check is bypassed
+document.write(new Date()-start+" | emptyfunc(5,6)<br>");
+start = new Date();
+for(var i=0; i<100000; i++) emptyfunc(5);
+document.write(new Date()-start+" | emptyfunc(5)<br>");
+start = new Date();
+for(var i=0; i<100000; i++) emptyfunc("qqq");
+document.write(new Date()-start+" | emptyfunc('qqq')<br>");
+
+</script>

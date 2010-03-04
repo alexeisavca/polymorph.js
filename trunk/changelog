@@ -1,0 +1,6 @@
+1.0.1
+-----
+* Some optimizations for the case when all polymorphic subfunctions have
+different number of parameters.
+* Workaround to make library compatible with jquery.inherit-1.1.1.js (will
+not harm performance when jquery.inherit-1.1.1.js is not used).

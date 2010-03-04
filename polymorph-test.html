@@ -116,6 +116,7 @@ function TestObject() {
 	this.val = 5;
 };
 TestObject.prototype.test = polymorph(
+	{param: String},
 	function(param)
 	{
 		return("One parameter: "+param+"; value="+this.val);
@@ -244,6 +245,17 @@ This change doesn't affect 'rectstr'
 */
 is(rectstr("string"), "String 'string' was passed");
 
+TestObject.prototype.test.update(
+	{param: Number},
+	function(param) {
+		return("New method for numeric param: "+param+"; value="+this.val);
+	}
+);
+var obj2 = new TestObject();
+is(obj.test(1),"New method for numeric param: 1; value=5");
+is(obj2.test(1),"New method for numeric param: 1; value=5");
+is(obj2.test("str"),"One parameter: str; value=5");
+
 document.write(ntest-nfailed+" test(s) ok<br>");
 document.write(nfailed+" test(s) failed<br>");
 
@@ -261,11 +273,12 @@ var emptyfunc = polymorph(
 	{a:String},
 	function(a) {}
 );
-var start = new Date();
+var start;
+start = new Date();
 for(var i=0; i<100000; i++) emptyfunc(5,6);
+document.write(new Date()-start+" | emptyfunc(5,6)<br>");
 // This one usually faster, because it's the only two-parameters function,
 // so arguments check is bypassed
-document.write(new Date()-start+" | emptyfunc(5,6)<br>");
 start = new Date();
 for(var i=0; i<100000; i++) emptyfunc(5);
 document.write(new Date()-start+" | emptyfunc(5)<br>");

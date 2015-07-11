@@ -1,7 +1,7 @@
 # polymorph.js
 Stolen from [code.google.com/p/polymorph-js]()
 
-CommonJSified and published on npm.
+Tested: works in Node. CommonJSified and published on npm.
 
 ```
 npm install polymorph.js

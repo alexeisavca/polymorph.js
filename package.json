@@ -1,0 +1,22 @@
+{
+  "name": "polymorph.js",
+  "version": "1.0.1",
+  "description": "Allows you to easily create polymorphic functions (functions which have the same name and differ in number of parameters or their types).",
+  "main": "polymorph.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexeisavca/polymorph.js.git"
+  },
+  "keywords": [
+    "polymorph"
+  ],
+  "author": "https://code.google.com/u/112892038422252729426/",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/alexeisavca/polymorph.js/issues"
+  },
+  "homepage": "https://github.com/alexeisavca/polymorph.js"
+}

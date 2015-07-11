@@ -3,7 +3,7 @@ Stolen from [code.google.com/p/polymorph-js]()
 
 CommonJSified and published on npm.
 
-Copypaste from their wiki:
+##Copypaste from their wiki:
 
 Allows you to easily create polymorphic functions (functions which have the same name and differ in number of parameters or their types). 
 

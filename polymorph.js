@@ -118,3 +118,5 @@ function polymorph() {
 	addFunctions(funcmap, arguments);
 	return getPolymorphFunction(funcmap);
 }
+
+module.exports = polymorph;

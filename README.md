@@ -11,9 +11,6 @@ var polymorph = require('polymorph.js');
 ```
 
 ##Copypaste from their wiki:
-
-Allows you to easily create polymorphic functions (functions which have the same name and differ in number of parameters or their types). 
-
 This allows you to easily create polymorphic functions (functions which have the same name and differ in number of parameters or their types). JS itself doesn't support this, so you should manually check number of parameters and their types to perform different actions. This library makes things much easier, and your code will look better as function interfaces will be explicitly declared. You may also create polymorphic methods and constructors. The library might be helpful if you want to port Java/C++ code to JS without changes in interface or just get used to write polymorphic functions.
 
 The only library function called 'polymorph' accepts bunch of subfunctions optionally prepended by Object, which describes parameter types. The return value of 'polymorph' function is an actual polymorphic function. If your subfunctions differ in number of parameters only, you may omit parameter types Object. You may also specify types for some parameters only, other ones will not be checked.

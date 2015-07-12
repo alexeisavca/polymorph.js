@@ -1,13 +1,10 @@
 /*
 polymorph.js
-Version: 1.0.3
+Version: 1.0.4
 Author: Tagir F. Valeev <lany@ngs.ru>
 License: MIT [ http://www.opensource.org/licenses/mit-license.php ]
 */
 
-if(!Number.__name) Number.__name = "number";
-if(!String.__name) String.__name = "string";
-if(!Boolean.__name) Boolean.__name = "boolean";
 
 /*
  * __fmap is an array of arrays of data and functions.
@@ -95,7 +92,7 @@ function polymorph() {
 					var argType = flist[i][0][j];
 					
 					if(argType == undefined || arguments[j] == undefined || (arguments[j] instanceof argType)
-						|| typeof(arguments[j])==argType.__name)
+						|| typeof arguments[j] == (argType.name || "").toLowerCase())
 						continue;
 					flag = false;
 					break;

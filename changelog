@@ -9,3 +9,11 @@ not harm performance when jquery.inherit-1.1.1.js is not used).
 ----
 Fixed a bug when the dispatcher function was crashing when called
 with a number of arguments it could not find match for
+----
+1.0.3
+----
+Removed an unclosed multi-line comment
+----
+1.0.4
+----
+Updated to not modify primitive prototypes

@@ -1,6 +1,6 @@
 /*
 polymorph.js
-Version: 1.0.2
+Version: 1.0.3
 Author: Tagir F. Valeev <lany@ngs.ru>
 License: MIT [ http://www.opensource.org/licenses/mit-license.php ]
 */
@@ -110,7 +110,7 @@ function polymorph() {
 			*/
 			this.__base;
 		}
-		/*
+
 		var flag = true;
 		for(var i in funcmap) {
 			if(funcmap[i].length>1) {

@@ -1,6 +1,6 @@
 {
   "name": "polymorph.js",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Allows you to easily create polymorphic functions (functions which have the same name and differ in number of parameters or their types).",
   "main": "polymorph.js",
   "scripts": {

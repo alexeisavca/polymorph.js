@@ -4,3 +4,8 @@
 different number of parameters.
 * Workaround to make library compatible with jquery.inherit-1.1.1.js (will
 not harm performance when jquery.inherit-1.1.1.js is not used).
+----
+1.0.2
+----
+Fixed a bug when the dispatcher function was crashing when called
+with a number of arguments it could not find match for

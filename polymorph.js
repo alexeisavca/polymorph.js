@@ -1,6 +1,6 @@
 /*
 polymorph.js
-Version: 1.0.1
+Version: 1.0.2
 Author: Tagir F. Valeev <lany@ngs.ru>
 License: MIT [ http://www.opensource.org/licenses/mit-license.php ]
 */
@@ -8,6 +8,21 @@ License: MIT [ http://www.opensource.org/licenses/mit-license.php ]
 if(!Number.__name) Number.__name = "number";
 if(!String.__name) String.__name = "string";
 if(!Boolean.__name) Boolean.__name = "boolean";
+
+/*
+ * __fmap is an array of arrays of data and functions.
+ * The first array is organized by argument length.
+ * The second could really be an object, for clarity.
+ *   0 is the array of argument type information,
+ *   1 is the function.
+ * The third is by argument index and contains the type for for the
+ *   argument index of the corresponding function. 
+ * 
+ * [argumentCount][0][argumentIndex]
+ * 
+ * __fmaplite is used when there no functions have the same number of arguments.
+ * Each function is mapped by its argument length.
+ */
 
 function polymorph() {
 	var getParameterTypes = function(types, func) {
@@ -58,14 +73,29 @@ function polymorph() {
 	}
 	var getPolymorphFunction = function(funcmap) {
 		var res = function() {
-			if(arguments.callee.__fmaplite) 
-				return arguments.callee.__fmaplite[arguments.length].apply(this, arguments);
-			var flist = arguments.callee.__fmap[arguments.length];
+			var argLen = arguments.length;
+			
+			/*
+			 * Check for the simple mapping (split only by argument length)
+			 * Now includes a check that __fmaplit[argLen] is not undefined
+			 * We could handle the error here, but it will be caught, below
+			 */
+			if (arguments.callee.__fmaplite && arguments.callee.__fmaplite[argLen]) 
+				return arguments.callee.__fmaplite[argLen].apply(this, arguments);
+			var flist = arguments.callee.__fmap[argLen];
+			
+			// If we don't have the correct number of arguments, stop here.
+			if (flist === undefined) {
+				throw new SyntaxError('Unexpected argument count');
+			}
+			
 			for(var i=0; i<flist.length-1; i++) {
 				var flag = true;
 				for(var j=0; j<flist[i].length; j++) {
-					if(flist[i][0][j] == undefined || arguments[j] == undefined || (arguments[j] instanceof flist[i][0][j])
-						|| typeof(arguments[j])==flist[i][0][j].__name)
+					var argType = flist[i][0][j];
+					
+					if(argType == undefined || arguments[j] == undefined || (arguments[j] instanceof argType)
+						|| typeof(arguments[j])==argType.__name)
 						continue;
 					flag = false;
 					break;
@@ -80,6 +110,7 @@ function polymorph() {
 			*/
 			this.__base;
 		}
+		/*
 		var flag = true;
 		for(var i in funcmap) {
 			if(funcmap[i].length>1) {
@@ -97,6 +128,7 @@ function polymorph() {
 		res.update = function() {
 			addFunctions(this.__fmap, arguments);
 			if(this.__fmaplite != undefined) {
+				// Flag is "only one function for each argument length"
 				var flag = true;
 				for(var i in this.__fmap) {
 					if(this.__fmap[i].length>1) {
